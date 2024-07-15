@@ -31,6 +31,10 @@ const Node = struct {
         };
     }
 
+    pub fn create(value: f32, label: []const u8) !Node {
+        return Node.init(value, 0.0, null, null, label);
+    }
+
     pub fn add(self: *const Node, other: *const Node) !Node {
         const label = try std.fmt.allocPrint(allocator, "{s} + {s}", .{self.label, other.label});
         return Node.init(self.value + other.value, 0.0, .{ self, other }, '+', label);
@@ -63,14 +67,8 @@ const Node = struct {
 };
 
 pub fn main() !void {
-    var a = try Node.init(5.0, 0.0, null, null, "a");
-    defer a.deinit();
-    var b = try Node.init(2.0, 0.0, null, null, "b");
-    defer b.deinit();
-    var c = try a.add(&b);
-    defer c.deinit();
+    var f = try Node.create(5, "f");
 
-    a.print();
-    b.print();
-    c.print();
+
+    f.print();
 }
