@@ -64,15 +64,18 @@ const Node = struct {
     pub fn deinit(self: *Node) void {
         allocator.free(self.label);
     }
+
 };
 
 pub fn main() !void {
     var a = try Node.create(3, "a");
+    defer a.deinit();
     var b = try Node.create(5, "b");
+    defer b.deinit();
     var c = try a.add(&b);
+    defer c.deinit();
+    var d = try c.add(&b);
+    defer d.deinit();
 
-
-    a.print();
-    b.print();
-    c.print();
+    d.print();
 }
