@@ -53,11 +53,11 @@ const Node = struct {
         }
         
         if (self.children.self) |child| {
-            info("Self: {d}", .{child.value});
+            info("Self: {s}", .{child.label});
         }
         
         if (self.children.other) |child| {
-            info("Other: {d}", .{child.value});
+            info("Other: {s}", .{child.label});
         }
     }
 
@@ -67,8 +67,12 @@ const Node = struct {
 };
 
 pub fn main() !void {
-    var f = try Node.create(5, "f");
+    var a = try Node.create(3, "a");
+    var b = try Node.create(5, "b");
+    var c = try a.add(&b);
 
 
-    f.print();
+    a.print();
+    b.print();
+    c.print();
 }
