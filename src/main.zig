@@ -20,6 +20,11 @@ const Node = struct {
         return output;
     }
 
+    pub fn multiply(self: Node, other: Node) Node {
+        const output = Node.init(self.value * other.value, 0.0, '*');
+        return output;
+    }
+
     pub fn print(self: Node) void {
         if (self.operand) |op| { // unwraps the u8
             info("Value: {d}, Grad: {d}, Operand: {c}", .{ self.value, self.grad, op });
@@ -30,13 +35,13 @@ const Node = struct {
 };
 
 pub fn main() void {
-    const a = Node.init(1.0, 0.0, null);
-
+    const a = Node.init(5.0, 0.0, null);
     const b = Node.init(2.0, 0.0, null);
-
     const c = a.add(b);
+    const d = c.multiply(a);
 
     a.print();
     b.print();
     c.print();
+    d.print();
 }
