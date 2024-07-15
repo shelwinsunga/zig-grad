@@ -36,11 +36,24 @@ const Node = struct {
     }
 
     pub fn print(self: Node) void {
-        if (self.operand) |op| {
-            info("Value: {d}, Grad: {d}, Operand: {c}", .{ self.value, self.grad, op });
+        if(self.label) |label| {
+            info("Label: {s}, Value: {d}, Grad: {d}", .{label, self.value, self.grad});
         } else {
             info("Value: {d}, Grad: {d}", .{ self.value, self.grad });
         }
+        
+        if (self.operand) |op| {
+            info("Operand: {c}", .{op});
+        }
+        
+        if (self.children.self) |child| {
+            info("Self: {d}", .{child.value});
+        }
+        
+        if (self.children.other) |child| {
+            info("Other: {d}", .{child.value});
+        }
+        
     }
 };
 
