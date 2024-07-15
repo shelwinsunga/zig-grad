@@ -1,14 +1,33 @@
-// Import standard library, reachable through the "std" constant.
 const std = @import("std");
 
-// "info" now refers to the "std.log.info" function.
 const info = std.log.info;
 
-// Usual hello world.
-// syntax: [pub] fn <function-name>(<arguments>) <return-type> { <body> }
+const Node = struct {
+    value: f32,
+    grad: f32,
+
+    pub fn init(value: f32, grad: f32) Node {
+        return Node{
+            .value = value,
+            .grad = grad,
+        };
+    }
+
+    pub fn add(self: Node, other: Node) Node {
+        return Node{
+            .value = self.value + other.value,
+            .grad = self.grad + other.grad,
+        };
+    }
+};
+
 pub fn main() void {
-    // Contrary to C functions, Zig functions have a fixed number of arguments.
-    // In C: "printf" takes any number of arguments.
-    // In Zig: std.log.info takes a format and a list of elements to print.
-    info("hello world", .{}); // .{} is an empty anonymous tuple.
+    const a = Node.init(1.0, 0.0);
+    const b = Node.init(2.0, 0.0);
+
+    const c = a.add(b);
+
+    info("Value of a: {d}", .{a.value});
+    info("Value of b: {d}", .{b.value});
+    info("Value of c: {d}", .{c.value});
 }
