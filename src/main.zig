@@ -1,5 +1,5 @@
 const std = @import("std");
-const Node = @import("node.zig").Node;
+const Node = @import("engine.zig").Node;
 
 pub fn main() !void {
     var a = Node.create(1);
