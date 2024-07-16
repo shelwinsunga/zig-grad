@@ -1,5 +1,9 @@
 const std = @import("std");
+
 const info = std.log.info;
+var gpa = std.heap.GeneralPurposeAllocator(.{}){};
+const allocator = gpa.allocator();
+const ArrayList = std.ArrayList;
 
 pub const Node = struct {
     value: f32,
@@ -32,9 +36,45 @@ pub const Node = struct {
         return Node.init(self.value * other.value, 0.0, .{ self, other }, '*');
     }
 
-    pub fn backward(self: *Node) void {
+    pub fn backward(self: *Node) !void {
         self.grad = 1;
-        self.addBackward();
+        var topo = try self.buildTopologicalGraph();
+        defer topo.deinit();
+
+        for (topo.items) |node| {
+            switch (node.operand orelse continue){
+                '+' => node.addBackward(),
+                '*' => node.multiplyBackward(),
+                else => unreachable,
+            }
+        }
+    }   
+
+    pub fn buildTopologicalGraph(self: *Node) !ArrayList(*Node) {
+        var topo = ArrayList(*Node).init(allocator);
+        var visited = std.AutoHashMap(*Node, void).init(allocator); // builds a set of visited nodes
+        defer visited.deinit();
+
+        try self.dfs(&topo, &visited); // depth-first on topo and visited
+
+        
+        // reverse the list to get the correct topo order
+        std.mem.reverse(*Node, topo.items);
+        return topo;
+    }
+
+    fn dfs(self: *Node, topo: *ArrayList(*Node), visited: *std.AutoHashMap(*Node, void)) !void {
+        if (visited.contains(self)) return;
+        try visited.put(self, {});
+
+        if (self.children.self) | child | {
+            try child.dfs(topo, visited);
+        }
+        if (self.children.other) | child | {
+            try child.dfs(topo, visited);
+        }
+
+        try topo.append(self);
     }
 
     pub fn addBackward(self: *Node) void {
