@@ -70,7 +70,7 @@ pub const Node = struct {
         if (self.children.self) | child | {
             try child.dfs(topo, visited);
         }
-        if (self.children.other) | child | {
+        if (self.children.other ) | child | {
             try child.dfs(topo, visited);
         }
 
