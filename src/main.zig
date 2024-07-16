@@ -49,6 +49,19 @@ const Node = struct {
         }
     }
 
+    pub fn multiplyBackward(self: *Node) void {
+        if (self.children.self) | self_child| {
+            if(self.children.other) | other_child | {
+                self_child.grad += other_child.value * self.grad;
+            }
+        }
+        if (self.children.other) | other_child| {
+            if(self.children.self) | self_child | {
+                other_child.grad += self_child.value * self.grad;
+            }
+        }
+    }
+
     pub fn print(self: Node) void {
         info("Value: {d}, Grad: {d}", .{ self.value, self.grad });
 
@@ -74,7 +87,10 @@ pub fn main() !void {
     var e = c.add(&d);
 
     e.backward();
-    e.print();
-    d.print();
+    c.multiplyBackward();
     c.print();
+    info("b",.{});
+    b.print();
+    info("a",.{});
+    a.print();
 }
