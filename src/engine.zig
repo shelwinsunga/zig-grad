@@ -36,15 +36,25 @@ pub const Node = struct {
         return Node.init(self.value * other.value, 0.0, .{ self, other }, '*');
     }
 
+    pub fn power(self: *Node, exponent: f32) Node {
+        return Node.init(std.math.pow(f32, self.value, exponent), 0.0, .{ self, null }, '^');
+    }
+
+    pub fn relu(self: *Node) Node {
+        return Node.init(if (self.value < 0) 0 else self.value, 0.0, .{ self, null }, 'r');
+    }
+
     pub fn backward(self: *Node) !void {
         self.grad = 1;
         var topo = try self.buildTopologicalGraph();
         defer topo.deinit();
 
         for (topo.items) |node| {
-            switch (node.operand orelse continue){
+            switch (node.operand orelse continue) {
                 '+' => node.addBackward(),
                 '*' => node.multiplyBackward(),
+                '^' => node.powerBackward(),
+                'r' => node.reluBackward(),
                 else => unreachable,
             }
         }
@@ -52,13 +62,11 @@ pub const Node = struct {
 
     pub fn buildTopologicalGraph(self: *Node) !ArrayList(*Node) {
         var topo = ArrayList(*Node).init(allocator);
-        var visited = std.AutoHashMap(*Node, void).init(allocator); // builds a set of visited nodes
+        var visited = std.AutoHashMap(*Node, void).init(allocator);
         defer visited.deinit();
 
-        try self.dfs(&topo, &visited); // depth-first on topo and visited
+        try self.dfs(&topo, &visited);
 
-        
-        // reverse the list to get the correct topo order
         std.mem.reverse(*Node, topo.items);
         return topo;
     }
@@ -67,10 +75,10 @@ pub const Node = struct {
         if (visited.contains(self)) return;
         try visited.put(self, {});
 
-        if (self.children.self) | child | {
+        if (self.children.self) |child| {
             try child.dfs(topo, visited);
         }
-        if (self.children.other ) | child | {
+        if (self.children.other) |child| {
             try child.dfs(topo, visited);
         }
 
@@ -91,6 +99,29 @@ pub const Node = struct {
 
         self_child.grad += other_child.value * self.grad;
         other_child.grad += self_child.value * self.grad;
+    }
+
+    pub fn powerBackward(self: *Node) void {
+        const self_child = self.children.self orelse return;
+        const exponent = self.value / self_child.value;
+        self_child.grad += exponent * std.math.pow(f32, self_child.value, exponent - 1) * self.grad;
+    }
+
+    pub fn reluBackward(self: *Node) void {
+        const self_child = self.children.self orelse return;
+        self_child.grad += if (self.value > 0) self.grad else 0;
+    }
+
+    pub fn negate(self: *Node) Node {
+        return self.multiply(&Node.create(-1));
+    }
+
+    pub fn subtract(self: *Node, other: *Node) Node {
+        return self.add(&other.negate());
+    }
+
+    pub fn divide(self: *Node, other: *Node) Node {
+        return self.multiply(&other.power(-1));
     }
 
     pub fn print(self: Node) void {
