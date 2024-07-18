@@ -31,6 +31,19 @@ pub const Neuron = struct {
             .nonlinear = nonlinear
         };
     }
+
+    // pub fn forward(self: *const Neuron, x: ArrayList(*Value)) *Value {
+    //     const weights = self.weights;
+
+    //     for (weights, x) |wi, xi| {
+    //         info("wi: {d}, xi: {d}", .{wi, xi});
+    //     }
+
+    //     // will return a single value object that represents the weighted sum / relu of the weighted sum
+    //     //  and if nonlinear (default), we return the value object after a relu()
+    // }
+
+
     
     fn randomWeight(rnd: *RndGen, a: f32, b: f32) f32 {
         return a + (b - a) * rnd.random().float(f32);

@@ -6,7 +6,7 @@ const allocator = gpa.allocator();
 const ArrayList = std.ArrayList;
 
 pub const Value = struct {
-    value: f32,
+    data: f32,
     grad: f32,
     children: struct {
         self: ?*Value,
@@ -14,8 +14,8 @@ pub const Value = struct {
     },
     operand: ?u8,
 
-    pub fn init(value: f32, grad: f32, children: ?struct { ?*Value, ?*Value }, operand: ?u8) Value {
-        return Value{ .value = value, .grad = grad, .operand = operand, .children = if (children) |c| .{
+    pub fn init(data: f32, grad: f32, children: ?struct { ?*Value, ?*Value }, operand: ?u8) Value {
+        return Value{ .data = data, .grad = grad, .operand = operand, .children = if (children) |c| .{
             .self = c[0],
             .other = c[1],
         } else .{
@@ -24,24 +24,24 @@ pub const Value = struct {
         } };
     }
 
-    pub fn create(value: f32) Value {
-        return Value.init(value, 0.0, null, null);
+    pub fn create(data: f32) Value {
+        return Value.init(data, 0.0, null, null);
     }
 
     pub fn add(self: *Value, other: *Value) Value {
-        return Value.init(self.value + other.value, 0.0, .{ self, other }, '+');
+        return Value.init(self.data + other.data, 0.0, .{ self, other }, '+');
     }
 
     pub fn multiply(self: *Value, other: *Value) Value {
-        return Value.init(self.value * other.value, 0.0, .{ self, other }, '*');
+        return Value.init(self.data * other.data, 0.0, .{ self, other }, '*');
     }
 
     pub fn power(self: *Value, exponent: f32) Value {
-        return Value.init(std.math.pow(f32, self.value, exponent), 0.0, .{ self, null }, '^');
+        return Value.init(std.math.pow(f32, self.data, exponent), 0.0, .{ self, null }, '^');
     }
 
     pub fn relu(self: *Value) Value {
-        return Value.init(if (self.value < 0) 0 else self.value, 0.0, .{ self, null }, 'r');
+        return Value.init(if (self.data < 0) 0 else self.data, 0.0, .{ self, null }, 'r');
     }
 
     pub fn backward(self: *Value) !void {
@@ -97,34 +97,34 @@ pub const Value = struct {
         const self_child = self.children.self orelse return;
         const other_child = self.children.other orelse return;
 
-        self_child.grad += other_child.value * self.grad;
-        other_child.grad += self_child.value * self.grad;
+        self_child.grad += other_child.data * self.grad;
+        other_child.grad += self_child.data * self.grad;
     }
 
     pub fn powerBackward(self: *Value) void {
         const self_child = self.children.self orelse return;
-        const exponent = self.value / self_child.value;
-        self_child.grad += exponent * std.math.pow(f32, self_child.value, exponent - 1) * self.grad;
+        const exponent = self.data / self_child.data;
+        self_child.grad += exponent * std.math.pow(f32, self_child.data, exponent - 1) * self.grad;
     }
 
     pub fn reluBackward(self: *Value) void {
         const self_child = self.children.self orelse return;
-        self_child.grad += if (self.value > 0) self.grad else 0;
+        self_child.grad += if (self.data > 0) self.grad else 0;
     }
 
     pub fn print(self: Value) void {
-        info("Value: {d}, Grad: {d}", .{ self.value, self.grad });
+        info("Value: {d}, Grad: {d}", .{ self.data, self.grad });
 
         if (self.operand) |op| {
             info("Operand: {c}", .{op});
         }
 
         if (self.children.self) |child| {
-            info("Self: {d}", .{child.value});
+            info("Self: {d}", .{child.data});
         }
 
         if (self.children.other) |child| {
-            info("Other: {d}", .{child.value});
+            info("Other: {d}", .{child.data});
         }
     }
 };

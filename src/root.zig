@@ -8,7 +8,7 @@ export fn add(a: i32, b: i32) i32 {
 
 test "Value creation" {
     const v = Value.create(5.0);
-    try testing.expectEqual(v.value, 5.0);
+    try testing.expectEqual(v.data, 5.0);
     try testing.expectEqual(v.grad, 0.0);
     try testing.expect(v.children.self == null);
     try testing.expect(v.children.other == null);
@@ -19,7 +19,7 @@ test "Value addition" {
     var a = Value.create(2.0);
     var b = Value.create(3.0);
     const c = a.add(&b);
-    try testing.expectEqual(c.value, 5.0);
+    try testing.expectEqual(c.data, 5.0);
     try testing.expectEqual(c.grad, 0.0);
     try testing.expect(c.children.self == &a);
     try testing.expect(c.children.other == &b);
@@ -30,7 +30,7 @@ test "Value multiplication" {
     var a = Value.create(2.0);
     var b = Value.create(3.0);
     const c = a.multiply(&b);
-    try testing.expectEqual(c.value, 6.0);
+    try testing.expectEqual(c.data, 6.0);
     try testing.expectEqual(c.grad, 0.0);
     try testing.expect(c.children.self == &a);
     try testing.expect(c.children.other == &b);
@@ -40,7 +40,7 @@ test "Value multiplication" {
 test "Value power" {
     var a = Value.create(2.0);
     const b = a.power(3.0);
-    try testing.expectEqual(b.value, 8.0);
+    try testing.expectEqual(b.data, 8.0);
     try testing.expectEqual(b.grad, 0.0);
     try testing.expect(b.children.self == &a);
     try testing.expect(b.children.other == null);
@@ -50,7 +50,7 @@ test "Value power" {
 test "Value ReLU" {
     var a = Value.create(-2.0);
     const b = a.relu();
-    try testing.expectEqual(b.value, 0.0);
+    try testing.expectEqual(b.data, 0.0);
     try testing.expectEqual(b.grad, 0.0);
     try testing.expect(b.children.self == &a);
     try testing.expect(b.children.other == null);
@@ -58,7 +58,7 @@ test "Value ReLU" {
 
     var c = Value.create(3.0);
     const d = c.relu();
-    try testing.expectEqual(d.value, 3.0);
+    try testing.expectEqual(d.data, 3.0);
 }
 
 test "Backpropagation" {
@@ -82,23 +82,23 @@ test "Backpropagation" {
     const epsilon = 0.0001;
 
     // Check final output
-    try testing.expectApproxEqAbs(y.value, 22.0, epsilon);
+    try testing.expectApproxEqAbs(y.data, 22.0, epsilon);
     try testing.expectApproxEqAbs(y.grad, 1.0, epsilon);
 
     // Check intermediate values and gradients
-    try testing.expectApproxEqAbs(x5.value, 22.0, epsilon);
+    try testing.expectApproxEqAbs(x5.data, 22.0, epsilon);
     try testing.expectApproxEqAbs(x5.grad, 1.0, epsilon);
 
-    try testing.expectApproxEqAbs(x2.value, 10.0, epsilon);
+    try testing.expectApproxEqAbs(x2.data, 10.0, epsilon);
     try testing.expectApproxEqAbs(x2.grad, 1.0, epsilon);
 
-    try testing.expectApproxEqAbs(x4.value, 12.0, epsilon);
+    try testing.expectApproxEqAbs(x4.data, 12.0, epsilon);
     try testing.expectApproxEqAbs(x4.grad, 1.0, epsilon);
 
-    try testing.expectApproxEqAbs(x1.value, 6.0, epsilon);
+    try testing.expectApproxEqAbs(x1.data, 6.0, epsilon);
     try testing.expectApproxEqAbs(x1.grad, 1.0, epsilon);
 
-    try testing.expectApproxEqAbs(x3.value, 4.0, epsilon);
+    try testing.expectApproxEqAbs(x3.data, 4.0, epsilon);
     try testing.expectApproxEqAbs(x3.grad, 3.0, epsilon);
 
     // Check gradients of input values
