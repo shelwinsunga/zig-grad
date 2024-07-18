@@ -112,18 +112,6 @@ pub const Value = struct {
         self_child.grad += if (self.value > 0) self.grad else 0;
     }
 
-    pub fn negate(self: *Value) Value {
-        return self.multiply(&Value.create(-1));
-    }
-
-    pub fn subtract(self: *Value, other: *Value) Value {
-        return self.add(&other.negate());
-    }
-
-    pub fn divide(self: *Value, other: *Value) Value {
-        return self.multiply(&other.power(-1));
-    }
-
     pub fn print(self: Value) void {
         info("Value: {d}, Grad: {d}", .{ self.value, self.grad });
 
