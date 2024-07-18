@@ -24,7 +24,6 @@ pub const Neuron = struct {
         }
 
         const bias = Value.create(0);
-        // info("Bias: {d}", .{bias.value});
 
         return Neuron{
             .weights = weights,
