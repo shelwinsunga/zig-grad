@@ -43,7 +43,6 @@ pub const Neuron = struct {
     //     //  and if nonlinear (default), we return the value object after a relu()
     // }
 
-
     
     fn randomWeight(rnd: *RndGen, a: f32, b: f32) f32 {
         return a + (b - a) * rnd.random().float(f32);
