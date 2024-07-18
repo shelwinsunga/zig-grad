@@ -5,17 +5,17 @@ var gpa = std.heap.GeneralPurposeAllocator(.{}){};
 const allocator = gpa.allocator();
 const ArrayList = std.ArrayList;
 
-pub const Node = struct {
+pub const Value = struct {
     value: f32,
     grad: f32,
     children: struct {
-        self: ?*Node,
-        other: ?*Node,
+        self: ?*Value,
+        other: ?*Value,
     },
     operand: ?u8,
 
-    pub fn init(value: f32, grad: f32, children: ?struct { ?*Node, ?*Node }, operand: ?u8) Node {
-        return Node{ .value = value, .grad = grad, .operand = operand, .children = if (children) |c| .{
+    pub fn init(value: f32, grad: f32, children: ?struct { ?*Value, ?*Value }, operand: ?u8) Value {
+        return Value{ .value = value, .grad = grad, .operand = operand, .children = if (children) |c| .{
             .self = c[0],
             .other = c[1],
         } else .{
@@ -24,27 +24,27 @@ pub const Node = struct {
         } };
     }
 
-    pub fn create(value: f32) Node {
-        return Node.init(value, 0.0, null, null);
+    pub fn create(value: f32) Value {
+        return Value.init(value, 0.0, null, null);
     }
 
-    pub fn add(self: *Node, other: *Node) Node {
-        return Node.init(self.value + other.value, 0.0, .{ self, other }, '+');
+    pub fn add(self: *Value, other: *Value) Value {
+        return Value.init(self.value + other.value, 0.0, .{ self, other }, '+');
     }
 
-    pub fn multiply(self: *Node, other: *Node) Node {
-        return Node.init(self.value * other.value, 0.0, .{ self, other }, '*');
+    pub fn multiply(self: *Value, other: *Value) Value {
+        return Value.init(self.value * other.value, 0.0, .{ self, other }, '*');
     }
 
-    pub fn power(self: *Node, exponent: f32) Node {
-        return Node.init(std.math.pow(f32, self.value, exponent), 0.0, .{ self, null }, '^');
+    pub fn power(self: *Value, exponent: f32) Value {
+        return Value.init(std.math.pow(f32, self.value, exponent), 0.0, .{ self, null }, '^');
     }
 
-    pub fn relu(self: *Node) Node {
-        return Node.init(if (self.value < 0) 0 else self.value, 0.0, .{ self, null }, 'r');
+    pub fn relu(self: *Value) Value {
+        return Value.init(if (self.value < 0) 0 else self.value, 0.0, .{ self, null }, 'r');
     }
 
-    pub fn backward(self: *Node) !void {
+    pub fn backward(self: *Value) !void {
         self.grad = 1;
         var topo = try self.buildTopologicalGraph();
         defer topo.deinit();
@@ -60,18 +60,18 @@ pub const Node = struct {
         }
     }   
 
-    pub fn buildTopologicalGraph(self: *Node) !ArrayList(*Node) {
-        var topo = ArrayList(*Node).init(allocator);
-        var visited = std.AutoHashMap(*Node, void).init(allocator);
+    pub fn buildTopologicalGraph(self: *Value) !ArrayList(*Value) {
+        var topo = ArrayList(*Value).init(allocator);
+        var visited = std.AutoHashMap(*Value, void).init(allocator);
         defer visited.deinit();
 
         try self.dfs(&topo, &visited);
 
-        std.mem.reverse(*Node, topo.items);
+        std.mem.reverse(*Value, topo.items);
         return topo;
     }
 
-    fn dfs(self: *Node, topo: *ArrayList(*Node), visited: *std.AutoHashMap(*Node, void)) !void {
+    fn dfs(self: *Value, topo: *ArrayList(*Value), visited: *std.AutoHashMap(*Value, void)) !void {
         if (visited.contains(self)) return;
         try visited.put(self, {});
 
@@ -85,7 +85,7 @@ pub const Node = struct {
         try topo.append(self);
     }
 
-    pub fn addBackward(self: *Node) void {
+    pub fn addBackward(self: *Value) void {
         const self_child = self.children.self orelse return;
         const other_child = self.children.other orelse return;
 
@@ -93,7 +93,7 @@ pub const Node = struct {
         other_child.grad += self.grad;
     }
 
-    pub fn multiplyBackward(self: *Node) void {
+    pub fn multiplyBackward(self: *Value) void {
         const self_child = self.children.self orelse return;
         const other_child = self.children.other orelse return;
 
@@ -101,30 +101,30 @@ pub const Node = struct {
         other_child.grad += self_child.value * self.grad;
     }
 
-    pub fn powerBackward(self: *Node) void {
+    pub fn powerBackward(self: *Value) void {
         const self_child = self.children.self orelse return;
         const exponent = self.value / self_child.value;
         self_child.grad += exponent * std.math.pow(f32, self_child.value, exponent - 1) * self.grad;
     }
 
-    pub fn reluBackward(self: *Node) void {
+    pub fn reluBackward(self: *Value) void {
         const self_child = self.children.self orelse return;
         self_child.grad += if (self.value > 0) self.grad else 0;
     }
 
-    pub fn negate(self: *Node) Node {
-        return self.multiply(&Node.create(-1));
+    pub fn negate(self: *Value) Value {
+        return self.multiply(&Value.create(-1));
     }
 
-    pub fn subtract(self: *Node, other: *Node) Node {
+    pub fn subtract(self: *Value, other: *Value) Value {
         return self.add(&other.negate());
     }
 
-    pub fn divide(self: *Node, other: *Node) Node {
+    pub fn divide(self: *Value, other: *Value) Value {
         return self.multiply(&other.power(-1));
     }
 
-    pub fn print(self: Node) void {
+    pub fn print(self: Value) void {
         info("Value: {d}, Grad: {d}", .{ self.value, self.grad });
 
         if (self.operand) |op| {

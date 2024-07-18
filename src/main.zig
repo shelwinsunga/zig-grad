@@ -1,11 +1,11 @@
 const std = @import("std");
-const Node = @import("engine.zig").Node;
+const Value = @import("engine.zig").Value;
 
 pub fn main() !void {
-    var a = Node.create(1);
-    var b = Node.create(2);
+    var a = Value.create(1);
+    var b = Value.create(2);
     var c = a.multiply(&b);
-    var d = Node.create(1);
+    var d = Value.create(1);
     var e = c.add(&d);
 
     try e.backward();
