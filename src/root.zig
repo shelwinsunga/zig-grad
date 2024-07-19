@@ -2,10 +2,6 @@ const std = @import("std");
 const testing = std.testing;
 const Value = @import("engine.zig").Value;
 
-export fn add(a: i32, b: i32) i32 {
-    return a + b;
-}
-
 test "Value creation" {
     const v = Value.create(5.0);
     try testing.expectEqual(v.data, 5.0);
@@ -68,12 +64,12 @@ test "Backpropagation" {
     var c = Value.create(4.0);
 
     // Build a more complex computational graph
-    var x1 = a.multiply(&b);  // x1 = a * b = 2 * 3 = 6
-    var x2 = x1.add(&c);      // x2 = (a * b) + c = 6 + 4 = 10
-    var x3 = a.power(2);      // x3 = a^2 = 2^2 = 4
+    var x1 = a.multiply(&b); // x1 = a * b = 2 * 3 = 6
+    var x2 = x1.add(&c); // x2 = (a * b) + c = 6 + 4 = 10
+    var x3 = a.power(2); // x3 = a^2 = 2^2 = 4
     var x4 = x3.multiply(&b); // x4 = (a^2) * b = 4 * 3 = 12
-    var x5 = x2.add(&x4);     // x5 = ((a * b) + c) + ((a^2) * b) = 10 + 12 = 22
-    var y = x5.relu();        // y = ReLU(22) = 22
+    var x5 = x2.add(&x4); // x5 = ((a * b) + c) + ((a^2) * b) = 10 + 12 = 22
+    var y = x5.relu(); // y = ReLU(22) = 22
 
     // Perform backpropagation
     try y.backward();
