@@ -17,19 +17,15 @@ pub const Neuron = struct {
         var weights = ArrayList(*Value).init(allocator);
         var rnd = RndGen.init(0);
 
-        for (0..nin) | i | {
+        for (0..nin) |i| {
             var weight = Value.create(randomWeight(&rnd, -1, 1));
             try weights.append(&weight);
-            info("Weight {d}: {d}", .{ i, weight.value });
+            info("Weight {d}: {d}", .{ i, weight.data });
         }
 
         const bias = Value.create(0);
 
-        return Neuron{
-            .weights = weights,
-            .bias = bias,
-            .nonlinear = nonlinear
-        };
+        return Neuron{ .weights = weights, .bias = bias, .nonlinear = nonlinear };
     }
 
     // pub fn forward(self: *const Neuron, x: ArrayList(*Value)) *Value {
@@ -43,9 +39,7 @@ pub const Neuron = struct {
     //     //  and if nonlinear (default), we return the value object after a relu()
     // }
 
-    
     fn randomWeight(rnd: *RndGen, a: f32, b: f32) f32 {
         return a + (b - a) * rnd.random().float(f32);
     }
-
 };
