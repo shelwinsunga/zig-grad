@@ -7,11 +7,11 @@ const ArrayList = std.ArrayList;
 
 
 pub fn main() !void {
-    // const n = try Neuron.create(10,true);
-    // var a = Value.create(5);
-    // var values = ArrayList(*Value).init(allocator);
-    // try values.append(&a);
+    const n = try Neuron.create(1,true);
+    var a = Value.create(5);
+    var values = ArrayList(*Value).init(allocator);
+    try values.append(&a);
 
-    // _ = n.forward(values);
+    _ = n.forward();
 
 }
