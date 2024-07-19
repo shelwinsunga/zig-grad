@@ -32,16 +32,13 @@ pub const Neuron = struct {
         return neuron;
     }
 
-    pub fn forward(self: *const Neuron) void {
+    pub fn forward(self: *const Neuron, x: ArrayList(*Value)) void {
         const weights = self.weights;        
 
-        for (weights.items) |wi| {
-            info("wi: {d}", .{wi.data});
-        }
 
-        // for (weights.items, x.items) |wi, xi| {
-        //     info("wi: {d}, xi: {d}", .{wi.data, xi.data});
-        // }
+        for (weights.items, x.items) |wi, xi| {
+            info("wi: {d}, xi: {d}", .{wi.data, xi.data});
+        }
 
         // will return a single value object that represents the weighted sum / relu of the weighted sum
         //  and if nonlinear (default), we return the value object after a relu()
