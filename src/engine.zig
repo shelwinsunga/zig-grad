@@ -58,7 +58,7 @@ pub const Value = struct {
                 else => unreachable,
             }
         }
-    }   
+    }
 
     pub fn buildTopologicalGraph(self: *Value) !ArrayList(*Value) {
         var topo = ArrayList(*Value).init(allocator);

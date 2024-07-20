@@ -14,17 +14,20 @@ pub const Neuron = struct {
 
     // nin = number of inputs
     pub fn create(nin: u32, nonlinear: bool) !*Neuron {
-        // var weights = ArrayList(*Value).init(allocator);
+        _ = nin;
         const weights = try allocator.create(ArrayList(*Value));
         weights.* = ArrayList(*Value).init(allocator);
-        var rnd = RndGen.init(0);
 
-        for (0..nin) |i| {
-            const weight = try allocator.create(Value);
-            weight.* = Value.create(randomWeight(&rnd, -1, 1));
-            try weights.append(weight);
-            info("Weight {d}: {d}", .{ i, weight.data });
-        }
+        const weight1 = try allocator.create(Value);
+        weight1.* = Value.create(0.23550571390294128);
+        try weights.append(weight1);
+
+        const weight2 = try allocator.create(Value);
+        weight2.* = Value.create(0.06653114721000164);
+        try weights.append(weight2);
+
+        info("Weight 0: {d}", .{weight1.data});
+        info("Weight 1: {d}", .{weight2.data});
 
         const bias = Value.create(0);
         const neuron = try allocator.create(Neuron);
