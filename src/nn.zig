@@ -12,9 +12,8 @@ pub const Neuron = struct {
     bias: Value,
     nonlinear: bool,
 
-    // nin = number of inputs
+    // nin: The number of inputs to the neuron.
     pub fn create(nin: u32, nonlinear: bool) !*Neuron {
-        // var weights = ArrayList(*Value).init(allocator);
         const weights = try allocator.create(ArrayList(*Value));
         weights.* = ArrayList(*Value).init(allocator);
         var rnd = RndGen.init(0);
