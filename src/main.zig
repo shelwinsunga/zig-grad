@@ -9,9 +9,12 @@ const info = std.log.info;
 
 pub fn main() !void {
     const n = try Neuron.create(2, true);
+    defer n.deinit();
+
     var a = Value.create(1);
     var b = Value.create(-2);
     var values = ArrayList(*Value).init(allocator);
+    defer values.deinit();
     try values.append(&a);
     try values.append(&b);
 
